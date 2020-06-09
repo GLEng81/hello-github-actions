@@ -1,0 +1,36 @@
+from errors import errors
+from wt_request import err_req
+from res import send_error
+from tmp import tmp_set
+import gc
+#from varss import obj_name, pk, ssid, pwd
+import varss
+
+
+def testfunc():
+	new_error = err_req()
+	print(new_error)
+	if tmp_set['last_error'] != new_error[0]:
+		print('There is a new error to send!!!')
+		if new_error[3] in errors:
+			text_error = errors[new_error[3]]
+		else:
+			text_error = new_error[4][19:98].lstrip(new_error[0]).rstrip()
+			print('New Error text - ' + text_error)
+			errors[new_error[3]] = text_error
+			with open('errors.py', 'w') as f:
+				f.write('errors = ' + str(errors))
+		try:
+			send_error(varss.obj_name, text_error)
+			print('Error is sent!!!')
+			tmp_set['last_error'] = new_error[0]
+			with open('tmp.py', 'w') as t:
+				t.write('tmp_set = ' + str(tmp_set))
+				print('Laste error updated!!!')
+		except:
+			print('No Connection to server')
+		
+		
+	else:
+		print('No New Errors!!!')
+	gc.collect()
